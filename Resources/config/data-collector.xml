@@ -65,5 +65,16 @@
             <argument type="service" id="httplug.collector.formatter"/>
             <argument type="service" id="debug.stopwatch"/>
         </service>
+
+        <service id="httplug.collector.profile_plugin_client_factory_discovery" class="Http\HttplugBundle\Discovery\ProfilePluginClientFactoryDiscovery">
+            <argument type="service">
+                <service class="Http\HttplugBundle\Collector\ProfilePluginClientFactory">
+                    <argument type="service" id="httplug.collector.collector" />
+                    <argument type="service" id="httplug.collector.formatter" />
+                    <argument type="service" id="debug.stopwatch"/>
+                </service>
+            </argument>
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>
