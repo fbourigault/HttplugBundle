@@ -56,13 +56,7 @@ class ProfileClient implements HttpClient, HttpAsyncClient
     public function __construct($client, Collector $collector, Formatter $formatter, Stopwatch $stopwatch)
     {
         if (!($client instanceof HttpClient && $client instanceof HttpAsyncClient)) {
-            throw new \RuntimeException(sprintf(
-                '%s first argument must implement %s and %s. Consider using %s.',
-                    __METHOD__,
-                    HttpClient::class,
-                    HttpAsyncClient::class,
-                    FlexibleHttpClient::class
-            ));
+            $client = new FlexibleHttpClient($client);
         }
         $this->client = $client;
         $this->collector = $collector;
@@ -167,6 +161,7 @@ class ProfileClient implements HttpClient, HttpAsyncClient
             $this->collectResponseInformations($exception->getResponse(), $event, $stack);
         }
 
+        $stack->setFailed(true);
         $stack->setDuration($event->getDuration());
         $stack->setClientException($this->formatter->formatException($exception));
     }

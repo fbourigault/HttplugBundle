@@ -5,9 +5,17 @@ namespace Http\HttplugBundle\Tests\Functional;
 use Http\Client\Common\PluginClient;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Http\HttplugBundle\Collector\PluginClientFactorySubscriber;
 use Http\HttplugBundle\Collector\StackPlugin;
 use Nyholm\NSA;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class DiscoveredClientsTest extends WebTestCase
 {
@@ -44,6 +52,8 @@ class DiscoveredClientsTest extends WebTestCase
         $this->assertTrue($container->has('httplug.auto_discovery.auto_discovered_client'));
 
         $service = $container->get('httplug.auto_discovery.auto_discovered_client');
+
+        var_dump($service);
 
         $this->assertInstanceOf(PluginClient::class, $service);
         $this->assertInstanceOf(HttpClient::class, NSA::getProperty($service, 'client'));
@@ -98,6 +108,14 @@ class DiscoveredClientsTest extends WebTestCase
     {
         static::bootKernel(['debug' => $debug, 'environment' => $environment]);
 
-        return static::$kernel->getContainer();
+        $container = static::$kernel->getContainer();
+
+        //As we won't be running neither a console command nor an HttpFoundation request, we are faking a kernel.request
+        //event to get the PluginClientFactorySubscriber register it's callable against PluginClientFactory.
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $container->get('event_dispatcher');
+        $dispatcher->dispatch(KernelEvents::REQUEST, new GetResponseEvent(static::$kernel, new Request(), HttpKernelInterface::MASTER_REQUEST));
+
+        return $container;
     }
 }

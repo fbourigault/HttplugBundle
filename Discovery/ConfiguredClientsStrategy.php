@@ -75,8 +75,8 @@ class ConfiguredClientsStrategy implements DiscoveryStrategy, EventSubscriberInt
     public static function getSubscribedEvents()
     {
         return [
-            'kernel.request' => ['onEvent', 1024],
-            'console.command' => ['onEvent', 1024],
+            'kernel.request' => ['onEvent', 1023],
+            'console.command' => ['onEvent', 1023],
         ];
     }
 }

@@ -30,6 +30,8 @@ final class PluginClientFactory
             throw new \RuntimeException(sprintf('Second argument to PluginClientFactory::createPluginClient must be a "%s" or a callable.', ClientFactory::class));
         }
 
-        return new PluginClient($client, $plugins, $pluginClientOptions);
+        $pluginClientFactory = new \Http\Client\Common\PluginClientFactory();
+
+        return $pluginClientFactory->createClient($client, $plugins, $pluginClientOptions);
     }
 }
